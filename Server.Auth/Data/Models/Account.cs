@@ -1,4 +1,9 @@
-﻿using Plugin.Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Security.Policy;
+using BCrypt.Net;
+using Plugin.Core;
 using Plugin.Core.Enums;
 using Plugin.Core.Models;
 using Plugin.Core.Utility;
@@ -6,9 +11,6 @@ using Plugin.Core.XML;
 using Server.Auth.Data.Managers;
 using Server.Auth.Data.Utils;
 using Server.Auth.Network;
-using System;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
 
 namespace Server.Auth.Data.Models
 {
@@ -143,7 +145,16 @@ namespace Server.Auth.Data.Models
         }
         public bool ComparePassword(string Password)
         {
-            return ConfigLoader.IsTestMode || this.Password == Password;
+            // when read config property Test = True not need to verify with bcrypt
+            if (ConfigLoader.IsTestMode)
+            {
+                return ConfigLoader.IsTestMode || this.Password == Password;
+            } else
+            {
+                return BCrypt.Net.BCrypt.Verify(Password, this.Password);
+            }
+
+               
         }
         public void GetAccountInfos(int LoadType)
         {

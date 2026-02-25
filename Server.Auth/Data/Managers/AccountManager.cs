@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using Plugin.Core.SQL;
 using Plugin.Core.Models;
 using Server.Auth.Data.Models;
+using BCrypt.Net;
 
 namespace Server.Auth.Data.Managers
 {
@@ -250,16 +251,26 @@ namespace Server.Auth.Data.Managers
                 return null;
             }
         }
+
+        public static string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
+        }
+
         public static bool CreateAccount(out Account Player, string Username, string Password)
         {
             try
             {
+                // hash password before never be hashed
+                string passwordHash = HashPassword(Password);
+
                 using (NpgsqlConnection connection = ConnectionSQL.GetInstance().Conn())
                 {
+                   
                     NpgsqlCommand command = connection.CreateCommand();
                     connection.Open();
                     command.Parameters.AddWithValue("@login", Username);
-                    command.Parameters.AddWithValue("@pass", Password);
+                    command.Parameters.AddWithValue("@pass", passwordHash);
                     command.CommandText = "INSERT INTO accounts (username, password) VALUES (@login, @pass)";
                     command.ExecuteNonQuery();
                     command.CommandText = "SELECT * FROM accounts WHERE username=@login";
