@@ -124,6 +124,28 @@ namespace Server.Game.Data.Models
         {
             PublicIP = IPAddress.Parse(address);
         }
+
+        // parampeter Password this from input 
+        public bool ComparePassword(string Password)
+        {
+            try
+            {
+                // when read config property Test = True not need to verify password with bcrypt
+                if (ConfigLoader.IsTestMode)
+                {
+                    return ConfigLoader.IsTestMode || this.Password == Password;
+                }
+                else
+                {
+                    return BCrypt.Net.BCrypt.Verify(Password, this.Password);
+                }
+            }
+            catch (Exception Ex)
+            {
+                CLogger.Print(Ex.Message, LoggerType.Error, Ex);
+                return false;
+            }
+        }
         public ChannelModel GetChannel()
         {
             return ChannelsXML.GetChannel(ServerId, ChannelId);

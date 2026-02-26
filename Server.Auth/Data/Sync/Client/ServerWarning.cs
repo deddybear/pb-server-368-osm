@@ -19,7 +19,12 @@ namespace Server.Auth.Data.Sync.Client
             string Password = C.ReadS(C.ReadC());
             string Message = C.ReadS(C.ReadH());
             Account Player = AccountManager.GetAccountDB(Username, Password, 2, 31);
-            if (Player != null && Player.Password == Password && Player.Access >= AccessLevel.GAMEMASTER)
+
+            bool Result = Player.ComparePassword(Password);
+
+            CLogger.Print($"Hasil check pakai fungsi Compare Class Account '{Result}'", LoggerType.Debug);
+
+            if (Player != null && Result && Player.Access >= AccessLevel.GAMEMASTER)
             {
                 int Count = 0;
                 using (PROTOCOL_SERVER_MESSAGE_ANNOUNCE_ACK Packet = new PROTOCOL_SERVER_MESSAGE_ANNOUNCE_ACK(Message))
@@ -47,7 +52,12 @@ namespace Server.Auth.Data.Sync.Client
             string Username = C.ReadS(C.ReadC());
             string Password = C.ReadS(C.ReadC());
             Account Player = AccountManager.GetAccountDB(Username, Password, 2, 31);
-            if (Player != null && Player.Password == Password && Player.Access >= AccessLevel.GAMEMASTER)
+
+            bool Result = Player.ComparePassword(Password);
+
+            CLogger.Print($"Hasil check pakai fungsi Compare Class Account '{Result}'", LoggerType.Debug);
+
+            if (Player != null && Result && Player.Access >= AccessLevel.GAMEMASTER)
             {
                 int Count = 0;
                 foreach (AuthClient Client in AuthXender.SocketList.Values)

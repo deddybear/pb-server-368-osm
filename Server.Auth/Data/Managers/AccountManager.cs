@@ -254,7 +254,7 @@ namespace Server.Auth.Data.Managers
 
         public static string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 15);
         }
 
         public static bool CreateAccount(out Account Player, string Username, string Password)
@@ -262,7 +262,7 @@ namespace Server.Auth.Data.Managers
             try
             {
                 // hash password before never be hashed
-                string passwordHash = HashPassword(Password);
+                string PasswordHash = HashPassword(Password);
 
                 using (NpgsqlConnection connection = ConnectionSQL.GetInstance().Conn())
                 {
@@ -270,7 +270,7 @@ namespace Server.Auth.Data.Managers
                     NpgsqlCommand command = connection.CreateCommand();
                     connection.Open();
                     command.Parameters.AddWithValue("@login", Username);
-                    command.Parameters.AddWithValue("@pass", passwordHash);
+                    command.Parameters.AddWithValue("@pass", PasswordHash);
                     command.CommandText = "INSERT INTO accounts (username, password) VALUES (@login, @pass)";
                     command.ExecuteNonQuery();
                     command.CommandText = "SELECT * FROM accounts WHERE username=@login";
@@ -279,7 +279,7 @@ namespace Server.Auth.Data.Managers
                     while (Data.Read())
                     {
                         Temp.Username = Data["username"].ToString();
-                        Temp.Password = Data["password"].ToString();
+                        Temp.Password = PasswordHash;
                         Temp.SetPlayerId(long.Parse(Data["player_id"].ToString()), 95);
                         Temp.Email = Data["email"].ToString();
                         Temp.Age = int.Parse(Data["age"].ToString());

@@ -115,7 +115,7 @@ namespace Server.Auth.Network.ClientPacket
                             if (Player == null)
                             {
                                 Message = "Account returned from DB is null";
-                                ErrorEvent = EventErrorEnum.LOGIN_DELETE_ACCOUNT;
+                                ErrorEvent = EventErrorEnum.LOGIN_BREAK_SESSION;
                             }
                             else if (!Player.ComparePassword(Password))
                             {

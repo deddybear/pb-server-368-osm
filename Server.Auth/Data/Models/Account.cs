@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
-using System.Security.Policy;
-using BCrypt.Net;
 using Plugin.Core;
 using Plugin.Core.Enums;
 using Plugin.Core.Models;
@@ -143,19 +141,32 @@ namespace Server.Auth.Data.Models
             this.PlayerId = PlayerId;
             GetAccountInfos(LoadType);
         }
+
+        // parampeter Password this from input 
         public bool ComparePassword(string Password)
         {
-            // when read config property Test = True not need to verify with bcrypt
-            if (ConfigLoader.IsTestMode)
+            
+            try
             {
-                return ConfigLoader.IsTestMode || this.Password == Password;
-            } else
-            {
-                return BCrypt.Net.BCrypt.Verify(Password, this.Password);
+                // when read config property Test = True not need to verify password with bcrypt
+                if (ConfigLoader.IsTestMode)
+                {
+                    return ConfigLoader.IsTestMode || this.Password == Password;
+                }
+                else
+                {
+                    return BCrypt.Net.BCrypt.Verify(Password, this.Password);
+                }
+            }
+            catch (Exception Ex) {
+                CLogger.Print(Ex.Message, LoggerType.Error, Ex);
+                return false;
             }
 
-               
+
         }
+
+
         public void GetAccountInfos(int LoadType)
         {
             if (LoadType > 0 && PlayerId > 0)
